@@ -18,8 +18,6 @@ public class Server : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        DontDestroyOnLoad(gameObject);
-
         Debug.Log("Starting server");
 
         IPHostEntry host = Dns.GetHostEntry(serverIP);
@@ -32,9 +30,9 @@ public class Server : MonoBehaviour
         {
             serverSkt.Blocking = false;
             serverSkt.Bind(localEP);
-            serverSkt.Listen(1);
+            serverSkt.Listen(2);
 
-            Debug.Log("Waiting for a connection");
+            Debug.Log("Waiting for connection");
 
             ready = true;
         }

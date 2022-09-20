@@ -13,33 +13,36 @@ public class Client : MonoBehaviour
 
     public int port = 30000;
 
-    public string ipConnect = "localhost";
+    private bool ready = false;
 
-    public Client()
+    private void Update()
     {
-        
+        if (ready)
+        {
+            ConnectionAttempt();
+        }
     }
 
-    public void Create(string IP)
+    public void Connect(string ip)
     {
-        ipConnect = IP;
-        Debug.Log(ipConnect);
-        IPHostEntry host = Dns.GetHostEntry(ipConnect);
+        IPHostEntry host = Dns.GetHostEntry(ip);
         IPAddress ipAddress = host.AddressList[0].IsIPv6LinkLocal ? host.AddressList[1] : host.AddressList[0];
+        Debug.Log(ipAddress.ToString());
         socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+        socket.Blocking = false;
         remoteEP = new IPEndPoint(ipAddress, port);
 
-        Connect();
+        ready = true;
     }
 
-    public void Connect()
+    public void ConnectionAttempt()
     {
-        IPHostEntry host = Dns.GetHostEntry(ipConnect);
-        IPAddress ipAddress = host.AddressList[0];
         try
         {
             socket.Connect(remoteEP);
-            Debug.Log("Connected to server at " + ipAddress.ToString());
+            Debug.Log("Connected to server at " + remoteEP.Address.ToString());
+
+            ready = false;
         }
         catch (Exception e)
         {
@@ -50,6 +53,8 @@ public class Client : MonoBehaviour
 
     public void Disconnect()
     {
+        ready = false;
+
         if (socket != null)
         {
             try
@@ -66,11 +71,6 @@ public class Client : MonoBehaviour
             }
         }
     }
-
-    public void Start()
-    {
-    }
-
 
     private void OnDestroy()
     {

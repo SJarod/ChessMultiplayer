@@ -6,18 +6,23 @@ using UnityEngine.SceneManagement;
 
 public class MenuButton : MonoBehaviour
 {
-    public GameObject serverPfb;
-    public GameObject clientPfb;
-    public string IP;
-
     public void CreateServer()
     {
-        Instantiate<GameObject>(serverPfb);
+        GameObject goS = new GameObject("Server");
+        DontDestroyOnLoad(goS);
+        goS.AddComponent<Server>();
+
+        GameObject goC = new GameObject("Client");
+        DontDestroyOnLoad(goC);
+        Client cl = goC.AddComponent<Client>();
+        cl.Connect("127.0.0.1");
     }
 
-    public void CreateClient()
+    public void CreateClient(string ip)
     {
-        Instantiate<GameObject>(clientPfb);
-        clientPfb.GetComponent<Client>().Create(IP);
+        GameObject go = new GameObject("Client");
+        DontDestroyOnLoad(go);
+        Client cl = go.AddComponent<Client>();
+        cl.Connect(ip);
     }
 }
