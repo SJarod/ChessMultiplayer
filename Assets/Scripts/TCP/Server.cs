@@ -23,7 +23,8 @@ public class Server : MonoBehaviour
         Debug.Log("Starting server");
 
         IPHostEntry host = Dns.GetHostEntry(serverIP);
-        IPAddress ipAddress = host.AddressList[0];
+        IPAddress ipAddress = host.AddressList[0].IsIPv6LinkLocal ? host.AddressList[1] : host.AddressList[0];
+        Debug.Log(ipAddress.ToString());
         serverSkt = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         localEP = new IPEndPoint(ipAddress, port);
 

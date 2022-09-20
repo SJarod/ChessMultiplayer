@@ -25,7 +25,7 @@ public class Client : MonoBehaviour
         ipConnect = IP;
         Debug.Log(ipConnect);
         IPHostEntry host = Dns.GetHostEntry(ipConnect);
-        IPAddress ipAddress = host.AddressList[0];
+        IPAddress ipAddress = host.AddressList[0].IsIPv6LinkLocal ? host.AddressList[1] : host.AddressList[0];
         socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         remoteEP = new IPEndPoint(ipAddress, port);
 
