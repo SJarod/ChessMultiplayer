@@ -4,11 +4,12 @@ using UnityEngine;
 using UnityEngine.Analytics;
 using UnityEngine.SceneManagement;
 
-public class ChangeSceneButton : MonoBehaviour
+public class MenuButton : MonoBehaviour
 {
-    public string scene;
-    public void ChangeScene()
+    public GameObject serverPfb;
+
+    public void CreateServer()
     {
-        SceneManager.LoadScene(scene);
+        GameObject.Instantiate<GameObject>(serverPfb);
     }
 }
