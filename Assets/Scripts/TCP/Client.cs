@@ -23,10 +23,13 @@ public class Client : MonoBehaviour
     public void Create(string IP)
     {
         ipConnect = IP;
+        Debug.Log(ipConnect);
         IPHostEntry host = Dns.GetHostEntry(ipConnect);
         IPAddress ipAddress = host.AddressList[0];
         socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         remoteEP = new IPEndPoint(ipAddress, port);
+
+        Connect();
     }
 
     public void Connect()
@@ -66,8 +69,8 @@ public class Client : MonoBehaviour
 
     public void Start()
     {
-        Connect();
     }
+
 
     private void OnDestroy()
     {
