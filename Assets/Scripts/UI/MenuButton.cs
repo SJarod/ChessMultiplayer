@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class MenuButton : MonoBehaviour
 {
+    private string IP = "127.0.0.1";
     public void CreateServerFor(string gameScene)
     {
         GameObject goS = new GameObject("Server");
@@ -24,4 +25,14 @@ public class MenuButton : MonoBehaviour
         Client cl = go.AddComponent<Client>();
         cl.Connect(ip);
     }
+
+    public void CreateClient()
+    {
+        GameObject go = new GameObject("Client");
+        DontDestroyOnLoad(go);
+        Client cl = go.AddComponent<Client>();
+        cl.Connect(IP);
+    }
+
+    public void RenameIP(string ip) => IP = ip;
 }
