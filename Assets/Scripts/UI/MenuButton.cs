@@ -7,9 +7,15 @@ using UnityEngine.SceneManagement;
 public class MenuButton : MonoBehaviour
 {
     public GameObject serverPfb;
+    public GameObject clientPfb;
 
     public void CreateServer()
     {
-        GameObject.Instantiate<GameObject>(serverPfb);
+        Instantiate<GameObject>(serverPfb);
+    }
+
+    public void CreateClient()
+    {
+        Instantiate<GameObject>(clientPfb);
     }
 }
