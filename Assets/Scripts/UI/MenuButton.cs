@@ -18,6 +18,6 @@ public class MenuButton : MonoBehaviour
     public void CreateClient()
     {
         Instantiate<GameObject>(clientPfb);
-        clientPfb.GetComponent<Client>().SetIP(IP);
+        clientPfb.GetComponent<Client>().Create(IP);
     }
 }

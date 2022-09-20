@@ -17,6 +17,12 @@ public class Client : MonoBehaviour
 
     public Client()
     {
+        
+    }
+
+    public void Create(string IP)
+    {
+        ipConnect = IP;
         IPHostEntry host = Dns.GetHostEntry(ipConnect);
         IPAddress ipAddress = host.AddressList[0];
         socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -67,7 +73,4 @@ public class Client : MonoBehaviour
     {
         Disconnect();
     }
-
-    public void SetIP(string IP) => ipConnect = IP;
-
 }
