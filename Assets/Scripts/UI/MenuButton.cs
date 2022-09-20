@@ -8,6 +8,7 @@ public class MenuButton : MonoBehaviour
 {
     public GameObject serverPfb;
     public GameObject clientPfb;
+    public string IP;
 
     public void CreateServer()
     {
@@ -17,5 +18,6 @@ public class MenuButton : MonoBehaviour
     public void CreateClient()
     {
         Instantiate<GameObject>(clientPfb);
+        clientPfb.GetComponent<Client>().SetIP(IP);
     }
 }

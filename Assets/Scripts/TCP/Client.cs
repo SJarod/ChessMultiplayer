@@ -67,4 +67,7 @@ public class Client : MonoBehaviour
     {
         Disconnect();
     }
+
+    public void SetIP(string IP) => ipConnect = IP;
+
 }
