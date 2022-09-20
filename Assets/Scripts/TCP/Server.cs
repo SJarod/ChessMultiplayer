@@ -7,6 +7,8 @@ using System;
 
 public class Server : MonoBehaviour
 {
+    static int NbPlayers = 0;
+
     private Socket serverSkt;
     private List<Socket> clientSkts = new List<Socket>();
     public string serverIP = "127.0.0.1";
@@ -22,6 +24,7 @@ public class Server : MonoBehaviour
         {
             WaitForConnection();
         }
+        NbPlayers = clientSkts.Count;
     }
 
     private void OnDestroy()
@@ -31,7 +34,7 @@ public class Server : MonoBehaviour
 
     public void WaitForConnection()
     {
-        Debug.Log("Waiting for connection");
+        //Debug.Log("Waiting for connection");
 
         try
         {
@@ -95,4 +98,6 @@ public class Server : MonoBehaviour
             serverSkt.Close();
         }
     }
+
+    public static int GetNbPlayers() => NbPlayers;
 }
