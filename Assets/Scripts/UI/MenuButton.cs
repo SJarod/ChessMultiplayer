@@ -6,11 +6,12 @@ using UnityEngine.SceneManagement;
 
 public class MenuButton : MonoBehaviour
 {
-    public void CreateServer()
+    public void CreateServerFor(string gameScene)
     {
         GameObject goS = new GameObject("Server");
         DontDestroyOnLoad(goS);
         Server sv = goS.AddComponent<Server>();
+        sv.gameScene = gameScene;
         sv.Startup();
 
         CreateClient("127.0.0.1");

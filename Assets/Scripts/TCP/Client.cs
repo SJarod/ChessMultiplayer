@@ -4,6 +4,9 @@ using UnityEngine;
 using System.Net.Sockets;
 using System.Net;
 using System;
+using UnityEngine.SceneManagement;
+using System.Text;
+using System.Threading.Tasks;
 
 public class Client : MonoBehaviour
 {
@@ -11,6 +14,20 @@ public class Client : MonoBehaviour
     private IPEndPoint remoteEP;
 
     public int port = 30000;
+
+    private bool inGame = false;
+    private byte[] sceneNamePackage = new byte[1024];
+
+    // Update is called once per frame
+    private void Update()
+    {
+        string sceneName = Encoding.ASCII.GetString(sceneNamePackage);
+        if (!inGame && sceneName.ToCharArray()[0] != '\0')
+        {
+            SceneManager.LoadScene(sceneName);
+            inGame = true;
+        }
+    }
 
     public void Connect(string ip)
     {
@@ -30,6 +47,8 @@ public class Client : MonoBehaviour
             Debug.Log("Error connecting to server " + e.ToString());
             Disconnect();
         }
+
+        socket.BeginReceive(sceneNamePackage, 0, 1024, SocketFlags.None, new AsyncCallback(ReadString), socket);
     }
 
     public void Disconnect()
@@ -49,6 +68,27 @@ public class Client : MonoBehaviour
                 socket.Close();
             }
         }
+    }
+
+    public bool ReceiveBool()
+    {
+        try
+        {
+            byte[] data = new byte[2];
+            socket.Receive(data);
+            return BitConverter.ToBoolean(data);
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Error receiving bool : " + e.ToString());
+        }
+
+        return false;
+    }
+
+    public void ReadString(IAsyncResult ar)
+    {
+        socket.EndReceive(ar);
     }
 
     private void OnDestroy()

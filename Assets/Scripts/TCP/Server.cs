@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Net.Sockets;
 using System.Net;
 using System;
+using System.Text;
 
 public class Server : MonoBehaviour
 {
@@ -13,14 +14,26 @@ public class Server : MonoBehaviour
     public int port = 30000;
     private IPEndPoint localEP;
 
-    private bool ready = false;
+    public string gameScene;
+    public int maxPlayer = 2;
+
+    private bool waiting = false;
 
     // Update is called once per frame
     void Update()
     {
-        if (ready)
+        if (waiting)
         {
             WaitForConnection();
+
+            if (clientSkts.Count >= 2)
+            {
+                foreach (Socket clientSkt in clientSkts)
+                {
+                    SendStringTo(clientSkt, gameScene);
+                }
+                waiting = false;
+            }
         }
     }
 
@@ -39,7 +52,7 @@ public class Server : MonoBehaviour
             clientSkts.Add(skt);
             Debug.Log(skt.LocalEndPoint + " joined the server");
         }
-        catch (Exception e)
+        catch (Exception)
         {
             // no connection attempt
         }
@@ -59,7 +72,7 @@ public class Server : MonoBehaviour
             serverSkt.Bind(localEP);
             serverSkt.Listen(2);
 
-            ready = true;
+            waiting = true;
         }
         catch (Exception e)
         {
@@ -70,7 +83,7 @@ public class Server : MonoBehaviour
 
     public void Shutdown()
     {
-        ready = false;
+        waiting = false;
 
         foreach (Socket clientSkt in clientSkts)
         {
@@ -93,6 +106,31 @@ public class Server : MonoBehaviour
         {
             // no need to shut down server socket
             serverSkt.Close();
+        }
+    }
+
+    public void SendBoolTo(Socket skt, bool b)
+    {
+        try
+        {
+            skt.Send(BitConverter.GetBytes(b));
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Error sending bool : " + e.ToString());
+        }
+    }
+
+    public void SendStringTo(Socket skt, string str)
+    {
+        try
+        {
+            byte[] data = Encoding.ASCII.GetBytes(str);
+            skt.Send(data);
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Error sending string : " + e.ToString());
         }
     }
 }
