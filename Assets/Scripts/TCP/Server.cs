@@ -8,45 +8,17 @@ using System;
 public class Server : MonoBehaviour
 {
     private Socket serverSkt;
-    private Socket clientSkt;
+    private List<Socket> clientSkts = new List<Socket>();
     public string serverIP = "127.0.0.1";
     public int port = 30000;
     private IPEndPoint localEP;
 
     private bool ready = false;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        Debug.Log("Starting server");
-
-        IPHostEntry host = Dns.GetHostEntry(serverIP);
-        IPAddress ipAddress = host.AddressList[0].IsIPv6LinkLocal ? host.AddressList[1] : host.AddressList[0];
-        Debug.Log(ipAddress.ToString());
-        serverSkt = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-        localEP = new IPEndPoint(ipAddress, port);
-
-        try
-        {
-            serverSkt.Blocking = false;
-            serverSkt.Bind(localEP);
-            serverSkt.Listen(2);
-
-            Debug.Log("Waiting for connection");
-
-            ready = true;
-        }
-        catch (Exception e)
-        {
-            Debug.Log("Error starting server " + e.ToString());
-            Shutdown();
-        }
-    }
-
     // Update is called once per frame
     void Update()
     {
-        if (ready && clientSkt == null)
+        if (ready)
         {
             WaitForConnection();
         }
@@ -59,10 +31,13 @@ public class Server : MonoBehaviour
 
     public void WaitForConnection()
     {
+        Debug.Log("Waiting for connection");
+
         try
         {
-            clientSkt = serverSkt.Accept();
-            Debug.Log(clientSkt.LocalEndPoint + " joined the server");
+            Socket skt = serverSkt.Accept();
+            clientSkts.Add(skt);
+            Debug.Log(skt.LocalEndPoint + " joined the server");
         }
         catch (Exception e)
         {
@@ -70,22 +45,48 @@ public class Server : MonoBehaviour
         }
     }
 
+    public void Startup()
+    {
+        IPHostEntry host = Dns.GetHostEntry(serverIP);
+        IPAddress ipAddress = host.AddressList[0].IsIPv6LinkLocal ? host.AddressList[1] : host.AddressList[0];
+        Debug.Log("Starting server at " + ipAddress.ToString());
+        serverSkt = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+        localEP = new IPEndPoint(ipAddress, port);
+
+        try
+        {
+            serverSkt.Blocking = false;
+            serverSkt.Bind(localEP);
+            serverSkt.Listen(2);
+
+            ready = true;
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Error starting server " + e.ToString());
+            Shutdown();
+        }
+    }
+
     public void Shutdown()
     {
         ready = false;
 
-        if (clientSkt != null)
+        foreach (Socket clientSkt in clientSkts)
         {
-            try
+            if (clientSkt != null)
             {
-                clientSkt.Shutdown(SocketShutdown.Both);
-            }
-            catch (Exception e)
-            {
-                Debug.Log("Error shutting down client socket " + e.ToString());
-            }
+                try
+                {
+                    clientSkt.Shutdown(SocketShutdown.Both);
+                }
+                catch (Exception e)
+                {
+                    Debug.Log("Error shutting down client socket " + e.ToString());
+                }
 
-            clientSkt.Close();
+                clientSkt.Close();
+            }
         }
 
         if (serverSkt != null)

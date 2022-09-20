@@ -10,12 +10,10 @@ public class MenuButton : MonoBehaviour
     {
         GameObject goS = new GameObject("Server");
         DontDestroyOnLoad(goS);
-        goS.AddComponent<Server>();
+        Server sv = goS.AddComponent<Server>();
+        sv.Startup();
 
-        GameObject goC = new GameObject("Client");
-        DontDestroyOnLoad(goC);
-        Client cl = goC.AddComponent<Client>();
-        cl.Connect("127.0.0.1");
+        CreateClient("127.0.0.1");
     }
 
     public void CreateClient(string ip)
