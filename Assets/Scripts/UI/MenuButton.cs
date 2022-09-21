@@ -23,7 +23,7 @@ public class MenuButton : MonoBehaviour
         GameObject go = new GameObject("Client");
         DontDestroyOnLoad(go);
         Client cl = go.AddComponent<Client>();
-        cl.Connect(ip);
+        cl.ConnectTo(ip);
     }
 
     public void CreateClient()
@@ -31,7 +31,7 @@ public class MenuButton : MonoBehaviour
         GameObject go = new GameObject("Client");
         DontDestroyOnLoad(go);
         Client cl = go.AddComponent<Client>();
-        cl.Connect(IP);
+        cl.ConnectTo(IP);
     }
 
     public void RenameIP(string ip) => IP = ip;
