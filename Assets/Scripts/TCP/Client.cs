@@ -26,7 +26,6 @@ public class Client : MonoBehaviour
             return;
 
         string sceneName = Encoding.ASCII.GetString(pkg.data);
-        Debug.Log(sceneName);
         if (!inGame)
         {
             SceneManager.LoadScene(sceneName);

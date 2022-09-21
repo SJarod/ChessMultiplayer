@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using UnityEngine;
 using UnityEngine.tvOS;
 
@@ -63,7 +64,7 @@ namespace Networking
             Array.Clear(tempPkgBuffer, 0, Constant.MAX_PACKAGE_SIZE);
             receivedPkg.Add(pkg);
 
-            Debug.Log("Package received from " + skt.LocalEndPoint);
+            Debug.Log("Package received from " + skt.LocalEndPoint + " : " + Encoding.ASCII.GetString(pkg.data));
         }
 
         public Package ReadFirstPackage()
