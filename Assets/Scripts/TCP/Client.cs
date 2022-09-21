@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 using System.Text;
 using System.Threading.Tasks;
 using Networking;
+using MyObjSerial;
+using UnityEditor;
 
 public class Client : MonoBehaviour
 {
@@ -22,14 +24,23 @@ public class Client : MonoBehaviour
     private void Update()
     {
         Package pkg = socket.ReadFirstPackage();
-        if (pkg == null)
-            return;
-
-        string sceneName = Encoding.ASCII.GetString(pkg.data);
-        if (!inGame)
+        if (pkg != null && !inGame)
         {
+            string sceneName = Encoding.ASCII.GetString(pkg.GetRawData());
             SceneManager.LoadScene(sceneName);
             inGame = true;
+            socket.ReceivePackage();
+        }
+        else if (pkg != null && inGame)
+        {
+            //Debug.Log((bool)SerializedMgr.ByteArrayToObject(pkg.GetRawData()));
+            if ((bool)SerializedMgr.ByteArrayToObject(pkg.GetRawData()))
+            {
+                Vector3 pos = Camera.main.transform.position;
+                Camera.main.transform.position = new Vector3(pos.x, pos.y, -pos.z);
+                Vector3 rot = Camera.main.transform.rotation.eulerAngles;
+                Camera.main.transform.Rotate(new Vector3(2f * (90f - rot.x), 0f, 0f));
+            }
         }
     }
 

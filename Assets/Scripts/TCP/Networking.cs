@@ -1,10 +1,11 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using UnityEngine;
-using UnityEngine.tvOS;
 
 namespace Networking
 {
@@ -15,11 +16,27 @@ namespace Networking
 
     public class Package
     {
-        public byte[] data = new byte[Constant.MAX_PACKAGE_SIZE];
+        private byte[] data = new byte[Constant.MAX_PACKAGE_SIZE];
 
         public Package(byte[] buffer)
         {
             Array.Copy(buffer, data, Constant.MAX_PACKAGE_SIZE);
+        }
+
+        public byte[] GetRawData()
+        {
+            int size = 0;
+            for (int i = 0; i < data.Length; ++i)
+            {
+                // 4 is End of Transmission
+                if (data[i] == 4)
+                    break;
+                ++size;
+            }
+
+            byte[] buff = new byte[size];
+            Array.Copy(data, 0, buff, 0, buff.Length);
+            return buff;
         }
     }
 
@@ -39,7 +56,12 @@ namespace Networking
         {
             try
             {
-                skt.Send(data);
+                byte[] buff = new byte[data.Length + 1];
+                Array.Copy(data, buff, data.Length);
+                // 4 is End of Transmission
+                buff[buff.Length - 1] = 4;
+
+                skt.Send(buff);
             }
             catch (Exception e)
             {
@@ -64,7 +86,7 @@ namespace Networking
             Array.Clear(tempPkgBuffer, 0, Constant.MAX_PACKAGE_SIZE);
             receivedPkg.Add(pkg);
 
-            Debug.Log("Package received from " + skt.LocalEndPoint + " : " + Encoding.ASCII.GetString(pkg.data));
+            Debug.Log("Package received from " + skt.LocalEndPoint + " : " + Encoding.Default.GetString(pkg.GetRawData()));
         }
 
         public Package ReadFirstPackage()

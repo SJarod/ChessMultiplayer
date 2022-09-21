@@ -6,6 +6,7 @@ using System.Net;
 using System;
 using System.Text;
 using Networking;
+using MyObjSerial;
 
 public class Server : MonoBehaviour
 {
@@ -32,9 +33,14 @@ public class Server : MonoBehaviour
             if (clientSkts.Count >= maxPlayer)
             {
                 byte[] sceneName = Encoding.ASCII.GetBytes(gameScene);
+                int i = 0;
                 foreach (TCPSocket clientSkt in clientSkts)
                 {
                     clientSkt.SendPackage(sceneName);
+                    bool isFirst = i++ == 1;
+                    byte[] boolByte = new byte[1];
+                    boolByte[0] = Convert.ToByte(isFirst);
+                    clientSkt.SendPackage(boolByte);
                 }
                 waiting = false;
             }
