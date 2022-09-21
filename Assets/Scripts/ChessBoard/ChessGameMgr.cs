@@ -1,5 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using MyObjSerial;
+
+using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 /*
  * This singleton manages the whole chess game
@@ -82,6 +87,7 @@ public partial class ChessGameMgr : MonoBehaviour
         }
     }
 
+    [Serializable]
     public struct Move
     {
         public int From;
@@ -180,7 +186,8 @@ public partial class ChessGameMgr : MonoBehaviour
             }
             else
             {
-                teamTurn = otherTeam;
+                //teamTurn = otherTeam;
+                //bool yourTurn;
             }
             // raise event
             if (OnPlayerTurn != null)
@@ -246,6 +253,17 @@ public partial class ChessGameMgr : MonoBehaviour
 
     void Start()
     {
+        Move move = new Move();
+        move.From = 1;
+        move.To = 9;
+        byte[] bytes = SerializedMgr.ObjectToByteArray(move);
+
+        Move moveReceive = new Move();
+        moveReceive = (Move)SerializedMgr.ByteArrayToObject(bytes);
+
+        Debug.Log(moveReceive.From);
+        Debug.Log(moveReceive.To);
+
         pieceLayerMask = 1 << LayerMask.NameToLayer("Piece");
         boardLayerMask = 1 << LayerMask.NameToLayer("Board");
 
