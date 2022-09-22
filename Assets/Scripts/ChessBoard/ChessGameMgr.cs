@@ -6,6 +6,10 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
+using Networking;
+using System.Net.Sockets;
+
+
 /*
  * This singleton manages the whole chess game
  *  - board data (see BoardState class)
@@ -37,6 +41,8 @@ public partial class ChessGameMgr : MonoBehaviour
     private static int BOARD_SIZE = 8;
     private int pieceLayerMask;
     private int boardLayerMask;
+
+    private Client client;
 
     #region enums
     public enum EPieceType : uint
@@ -160,7 +166,7 @@ public partial class ChessGameMgr : MonoBehaviour
         }
     }
 
-    public void PlayTurn(Move move)
+    public void PlayTurn(Move move, bool changeTeam)
     {
         if (boardState.IsValidMove(teamTurn, move))
         {
@@ -186,8 +192,12 @@ public partial class ChessGameMgr : MonoBehaviour
             }
             else
             {
-                //teamTurn = otherTeam;
-                //bool yourTurn;
+                client = GameObject.Find("Client").GetComponent<Client>();
+                Package pck = new Package(SerializedMgr.ObjectToByteArray(move));
+                client.socket.SendPackage(pck.data);
+
+                if(changeTeam)
+                    teamTurn = otherTeam;
             }
             // raise event
             if (OnPlayerTurn != null)
@@ -253,17 +263,6 @@ public partial class ChessGameMgr : MonoBehaviour
 
     void Start()
     {
-        Move move = new Move();
-        move.From = 1;
-        move.To = 9;
-        byte[] bytes = SerializedMgr.ObjectToByteArray(move);
-
-        Move moveReceive = new Move();
-        moveReceive = (Move)SerializedMgr.ByteArrayToObject(bytes);
-
-        Debug.Log(moveReceive.From);
-        Debug.Log(moveReceive.To);
-
         pieceLayerMask = 1 << LayerMask.NameToLayer("Piece");
         boardLayerMask = 1 << LayerMask.NameToLayer("Board");
 
@@ -392,7 +391,7 @@ public partial class ChessGameMgr : MonoBehaviour
     void UpdateAITurn()
     {
         Move move = chessAI.ComputeMove();
-        PlayTurn(move);
+        PlayTurn(move, true);
 
         UpdatePieces();
     }
@@ -423,7 +422,7 @@ public partial class ChessGameMgr : MonoBehaviour
                 move.From = startPos;
                 move.To = destPos;
 
-                PlayTurn(move);
+                PlayTurn(move, true);
 
                 UpdatePieces();
             }

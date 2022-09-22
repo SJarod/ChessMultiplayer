@@ -13,12 +13,13 @@ using UnityEditor;
 
 public class Client : MonoBehaviour
 {
-    private TCPSocket socket;
+    public TCPSocket socket;
     private IPEndPoint remoteEP;
 
     public int port = 30000;
 
     private bool inGame = false;
+    private bool doOnce = false;
 
     // Update is called once per frame
     private void Update()
@@ -33,12 +34,22 @@ public class Client : MonoBehaviour
         }
         else if (pkg != null && inGame)
         {
-            if (BitConverter.ToBoolean(pkg.data))
+            if (BitConverter.ToBoolean(pkg.data) && !doOnce)
             {
                 Vector3 pos = Camera.main.transform.position;
                 Camera.main.transform.position = new Vector3(pos.x, pos.y, -pos.z);
                 Vector3 rot = Camera.main.transform.rotation.eulerAngles;
                 Camera.main.transform.Rotate(new Vector3(2f * (90f - rot.x), 0f, 0f));
+                doOnce = true;
+            }
+            else if (!doOnce)
+            {
+                doOnce = true;
+            }
+            else
+            {
+                ChessGameMgr chessGameMgr = FindObjectOfType<ChessGameMgr>();
+                chessGameMgr.PlayTurn((ChessGameMgr.Move)SerializedMgr.ByteArrayToObject(pkg.data), false);
             }
         }
     }
