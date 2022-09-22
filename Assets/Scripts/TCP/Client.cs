@@ -26,15 +26,14 @@ public class Client : MonoBehaviour
         Package pkg = socket.ReadFirstPackage();
         if (pkg != null && !inGame)
         {
-            string sceneName = Encoding.ASCII.GetString(pkg.GetRawData());
+            socket.ReceivePackage();
+            string sceneName = Encoding.ASCII.GetString(pkg.data);
             SceneManager.LoadScene(sceneName);
             inGame = true;
-            socket.ReceivePackage();
         }
         else if (pkg != null && inGame)
         {
-            //Debug.Log((bool)SerializedMgr.ByteArrayToObject(pkg.GetRawData()));
-            if ((bool)SerializedMgr.ByteArrayToObject(pkg.GetRawData()))
+            if (BitConverter.ToBoolean(pkg.data))
             {
                 Vector3 pos = Camera.main.transform.position;
                 Camera.main.transform.position = new Vector3(pos.x, pos.y, -pos.z);

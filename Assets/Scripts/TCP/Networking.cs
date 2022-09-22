@@ -16,27 +16,12 @@ namespace Networking
 
     public class Package
     {
-        private byte[] data = new byte[Constant.MAX_PACKAGE_SIZE];
+        public byte[] data;
 
         public Package(byte[] buffer)
         {
-            Array.Copy(buffer, data, Constant.MAX_PACKAGE_SIZE);
-        }
-
-        public byte[] GetRawData()
-        {
-            int size = 0;
-            for (int i = 0; i < data.Length; ++i)
-            {
-                // 4 is End of Transmission
-                if (data[i] == 4)
-                    break;
-                ++size;
-            }
-
-            byte[] buff = new byte[size];
-            Array.Copy(data, 0, buff, 0, buff.Length);
-            return buff;
+            data = new byte[buffer.Length];
+            Array.Copy(buffer, data, buffer.Length);
         }
     }
 
@@ -45,7 +30,7 @@ namespace Networking
         public Socket skt;
         public List<Package> receivedPkg = new List<Package>();
 
-        private byte[] tempPkgBuffer = new byte[Constant.MAX_PACKAGE_SIZE];
+        private byte[] rawPkgBuffer = new byte[Constant.MAX_PACKAGE_SIZE];
 
         public TCPSocket(Socket skt)
         {
@@ -56,10 +41,12 @@ namespace Networking
         {
             try
             {
-                byte[] buff = new byte[data.Length + 1];
-                Array.Copy(data, buff, data.Length);
-                // 4 is End of Transmission
-                buff[buff.Length - 1] = 4;
+                byte[] header = BitConverter.GetBytes(data.Length);
+
+                byte[] buff = new byte[1 + header.Length + data.Length];
+                buff[0] = 1; // [START OF HEADING]
+                Array.Copy(header, 0, buff, 1, header.Length);
+                Array.Copy(data, 0, buff, header.Length + 1, data.Length);
 
                 skt.Send(buff);
             }
@@ -71,7 +58,7 @@ namespace Networking
 
         public void ReceivePackage()
         {
-            skt.BeginReceive(tempPkgBuffer,
+            skt.BeginReceive(rawPkgBuffer,
                 0,
                 Constant.MAX_PACKAGE_SIZE,
                 SocketFlags.None,
@@ -82,11 +69,33 @@ namespace Networking
         private void ReceiveCallback(IAsyncResult ar)
         {
             skt.EndReceive(ar);
-            Package pkg = new Package(tempPkgBuffer);
-            Array.Clear(tempPkgBuffer, 0, Constant.MAX_PACKAGE_SIZE);
-            receivedPkg.Add(pkg);
 
-            Debug.Log("Package received from " + skt.LocalEndPoint + " : " + Encoding.Default.GetString(pkg.GetRawData()));
+            for (int i = 0; i < rawPkgBuffer.Length; ++i)
+            {
+                if (rawPkgBuffer[i] == 1) // [START OF HEADING]
+                {
+                    byte[] header = { rawPkgBuffer[i + 1],
+                        rawPkgBuffer[i + 2],
+                        rawPkgBuffer[i + 3],
+                        rawPkgBuffer[i + 4] };
+                    int size = BitConverter.ToInt32(header);
+
+                    byte[] rawPkg = new byte[size];
+                    Array.Copy(rawPkgBuffer, i + 5, rawPkg, 0, size);
+                    Package pkg = new Package(rawPkg);
+                    receivedPkg.Add(pkg);
+
+                    Debug.Log("Package received from " + skt.LocalEndPoint + " : " + Encoding.ASCII.GetString(pkg.data));
+
+                    i += header.Length + size;
+                }
+                else
+                {
+                    continue;
+                }
+            }
+
+            Array.Clear(rawPkgBuffer, 0, Constant.MAX_PACKAGE_SIZE);
         }
 
         public Package ReadFirstPackage()
