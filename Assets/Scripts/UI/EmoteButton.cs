@@ -1,0 +1,45 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Networking;
+using MyObjSerial;
+
+public class EmoteButton : MonoBehaviour
+{
+    public GameObject prefab;
+    public Transform prefabPos;
+
+    private static GameObject p_prefab;
+    private static Transform p_prefabPos;
+
+    private void Start()
+    {
+        p_prefab = prefab;
+        p_prefabPos = prefabPos;
+    }
+    public static void StartEmote()
+    {
+        CreateEmote(1);
+
+        EmoteInfo info = new EmoteInfo();
+        info.id = 1;
+        Package pck = new Package(SerializedMgr.ObjectToByteArray(info));
+        Client client = FindObjectOfType<Client>();
+        client.socket.SendPackage(pck.data);
+        
+    }
+
+    public static void CreateEmote(int id)
+    {
+        if(id == 1)
+        {
+            GameObject Go = Instantiate<GameObject>(p_prefab);
+            Go.transform.position = p_prefabPos.position;
+        }
+    }
+}
+
+public class EmoteInfo
+{
+    public int id = 0;
+}
