@@ -187,6 +187,7 @@ public partial class ChessGameMgr : MonoBehaviour
             }
 
             EChessTeam otherTeam = (teamTurn == EChessTeam.White) ? EChessTeam.Black : EChessTeam.White;
+            bool finishGame = false;
             if (boardState.DoesTeamLose(otherTeam))
             {
                 // increase score and reset board
@@ -198,6 +199,11 @@ public partial class ChessGameMgr : MonoBehaviour
                 // remove extra piece instances if pawn promotions occured
                 teamPiecesArray[0].ClearPromotedPieces();
                 teamPiecesArray[1].ClearPromotedPieces();
+
+                finishGame = true;
+
+                Package pck = new Package(SerializedMgr.ObjectToByteArray(move));
+                client.socket.SendPackage(pck.data);
             }
             else
             {
@@ -208,7 +214,13 @@ public partial class ChessGameMgr : MonoBehaviour
             if (OnPlayerTurn != null)
                 OnPlayerTurn(teamTurn == EChessTeam.White);
 
-            teamTurn = otherTeam;
+            if(!finishGame)
+                teamTurn = otherTeam;
+            else
+            {
+                finishGame = false;
+                teamTurn = EChessTeam.White;
+            }
         }
 
         UpdatePieces();
