@@ -34,5 +34,20 @@ public class MenuButton : MonoBehaviour
         cl.ConnectTo(IP);
     }
 
+    public void GoBackToMenu()
+    {
+        Transform[] transforms = FindObjectsOfType<Transform>();
+        foreach (Transform t in transforms)
+        {
+            Camera c;
+            if (t.gameObject.TryGetComponent<Camera>(out c))
+                continue;
+
+            Destroy(t.gameObject);
+        }
+
+        SceneManager.LoadScene("Menu");
+    }
+
     public void RenameIP(string ip) => IP = ip;
 }

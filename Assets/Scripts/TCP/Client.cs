@@ -69,7 +69,8 @@ public class Client : MonoBehaviour
         socket = new TCPSocket(new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp));
         remoteEP = new IPEndPoint(ipAddress, port);
 
-        socket.Connect(remoteEP);
+        if (!socket.Connect(remoteEP))
+            Destroy(gameObject);
 
         socket.ReceivePackage();
     }

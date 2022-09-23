@@ -1,7 +1,5 @@
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -108,17 +106,19 @@ namespace Networking
             return pkg;
         }
 
-        public void Connect(IPEndPoint ep)
+        public bool Connect(IPEndPoint ep)
         {
             try
             {
                 skt.Connect(ep);
                 Debug.Log("Connected to " + ep.Address.ToString());
+                return true;
             }
             catch (Exception e)
             {
                 Debug.Log("Error connecting to EndPoint : " + e.ToString());
                 Disconnect();
+                return false;
             }
         }
 
