@@ -172,7 +172,6 @@ public partial class ChessGameMgr : MonoBehaviour
         bool canPlay = true;
         if (myMove)
         {
-            Client client = FindObjectOfType<Client>();
             bool isWhite = teamTurn == EChessTeam.White;
             canPlay = isWhite ? client.player1 : !client.player1;
         }
@@ -201,26 +200,19 @@ public partial class ChessGameMgr : MonoBehaviour
                 teamPiecesArray[1].ClearPromotedPieces();
 
                 finishGame = true;
+            }
 
-                Package pck = new Package(SerializedMgr.ObjectToByteArray(move));
-                client.socket.SendPackage(pck.data);
-            }
+            Package pck = new Package(SerializedMgr.ObjectToByteArray(move));
+            client.socket.SendPackage(pck.data);
+
+            if (!finishGame)
+                teamTurn = otherTeam;
             else
-            {
-                Package pck = new Package(SerializedMgr.ObjectToByteArray(move));
-                client.socket.SendPackage(pck.data);
-            }
+                teamTurn = EChessTeam.White;
+
             // raise event
             if (OnPlayerTurn != null)
                 OnPlayerTurn(teamTurn == EChessTeam.White);
-
-            if(!finishGame)
-                teamTurn = otherTeam;
-            else
-            {
-                finishGame = false;
-                teamTurn = EChessTeam.White;
-            }
         }
 
         UpdatePieces();
