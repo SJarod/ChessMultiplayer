@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Networking;
 using MyObjSerial;
-
+using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 public class EmoteButton : MonoBehaviour
 {
     public GameObject prefab;
@@ -26,7 +28,7 @@ public class EmoteButton : MonoBehaviour
         Package pck = new Package(SerializedMgr.ObjectToByteArray(info));
         Client client = FindObjectOfType<Client>();
         client.socket.SendPackage(pck.data);
-        
+
     }
 
     public static void CreateEmote(int id)
@@ -39,6 +41,7 @@ public class EmoteButton : MonoBehaviour
     }
 }
 
+[Serializable]
 public class EmoteInfo
 {
     public int id = 0;
