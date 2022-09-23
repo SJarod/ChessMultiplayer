@@ -23,7 +23,8 @@ public partial class ChessGameMgr : MonoBehaviour
 
     #region singleton
     static ChessGameMgr instance = null;
-    public static ChessGameMgr Instance {
+    public static ChessGameMgr Instance
+    {
         get
         {
             if (instance == null)
@@ -166,9 +167,17 @@ public partial class ChessGameMgr : MonoBehaviour
         }
     }
 
-    public void PlayTurn(Move move, bool changeTeam)
+    public void PlayTurn(Move move, bool myMove)
     {
-        if (boardState.IsValidMove(teamTurn, move))
+        bool canPlay = true;
+        if (myMove)
+        {
+            Client client = FindObjectOfType<Client>();
+            bool isWhite = teamTurn == EChessTeam.White;
+            canPlay = isWhite ? client.player1 : !client.player1;
+        }
+
+        if (boardState.IsValidMove(teamTurn, move) && canPlay)
         {
             BoardState.EMoveResult result = boardState.PlayUnsafeMove(move);
             if (result == BoardState.EMoveResult.Promotion)
@@ -192,17 +201,17 @@ public partial class ChessGameMgr : MonoBehaviour
             }
             else
             {
-                client = GameObject.Find("Client").GetComponent<Client>();
                 Package pck = new Package(SerializedMgr.ObjectToByteArray(move));
                 client.socket.SendPackage(pck.data);
-
-                if(changeTeam)
-                    teamTurn = otherTeam;
             }
             // raise event
             if (OnPlayerTurn != null)
                 OnPlayerTurn(teamTurn == EChessTeam.White);
+
+            teamTurn = otherTeam;
         }
+
+        UpdatePieces();
     }
 
     // used to instantiate newly promoted queen
@@ -283,18 +292,14 @@ public partial class ChessGameMgr : MonoBehaviour
             OnPlayerTurn(teamTurn == EChessTeam.White);
         if (OnScoreUpdated != null)
             OnScoreUpdated(scores[0], scores[1]);
+
+        client = FindObjectOfType<Client>();
     }
 
     void Update()
     {
         // human player always plays white
-        if (teamTurn == EChessTeam.White)
-            UpdatePlayerTurn();
-        // AI plays black
-        else if (IsAIEnabled)
-            UpdateAITurn();
-        else
-            UpdatePlayerTurn();
+        UpdatePlayerTurn();
     }
     #endregion
 
@@ -392,8 +397,6 @@ public partial class ChessGameMgr : MonoBehaviour
     {
         Move move = chessAI.ComputeMove();
         PlayTurn(move, true);
-
-        UpdatePieces();
     }
 
     void UpdatePlayerTurn()
@@ -423,8 +426,6 @@ public partial class ChessGameMgr : MonoBehaviour
                 move.To = destPos;
 
                 PlayTurn(move, true);
-
-                UpdatePieces();
             }
             else
             {

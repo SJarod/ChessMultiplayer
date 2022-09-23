@@ -19,22 +19,29 @@ public class Client : MonoBehaviour
     public int port = 30000;
 
     private bool inGame = false;
+    public bool player1 = true;
     private bool doOnce = false;
 
     // Update is called once per frame
     private void Update()
     {
+        socket.ReceivePackage();
+
         Package pkg = socket.ReadFirstPackage();
         if (pkg != null && !inGame)
         {
-            socket.ReceivePackage();
             string sceneName = Encoding.ASCII.GetString(pkg.data);
             SceneManager.LoadScene(sceneName);
             inGame = true;
         }
         else if (pkg != null && inGame)
         {
-            if (BitConverter.ToBoolean(pkg.data) && !doOnce)
+            if (!doOnce)
+            {
+                player1 = !BitConverter.ToBoolean(pkg.data);
+            }
+
+            if (!player1 && !doOnce)
             {
                 Vector3 pos = Camera.main.transform.position;
                 Camera.main.transform.position = new Vector3(pos.x, pos.y, -pos.z);

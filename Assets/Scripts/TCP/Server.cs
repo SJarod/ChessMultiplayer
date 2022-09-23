@@ -7,6 +7,7 @@ using System;
 using System.Text;
 using Networking;
 using MyObjSerial;
+using System.Net.WebSockets;
 
 public class Server : MonoBehaviour
 {
@@ -43,9 +44,30 @@ public class Server : MonoBehaviour
                     clientSkt.SendPackage(boolByte);
                 }
                 waiting = false;
+        NbPlayers = clientSkts.Count;
             }
         }
-        NbPlayers = clientSkts.Count;
+        else
+        {
+            Package pkgP1 = ReadPackageFromSocket(clientSkts[0]);
+            Package pkgP2 = ReadPackageFromSocket(clientSkts[1]);
+
+            if (pkgP1 != null)
+            {
+                clientSkts[1].SendPackage(pkgP1.data);
+            }
+            else if (pkgP2 != null)
+            {
+                clientSkts[0].SendPackage(pkgP2.data);
+            }
+        }
+    }
+
+    public Package ReadPackageFromSocket(TCPSocket skt)
+    {
+        skt.ReceivePackage();
+        Package pkg = skt.ReadFirstPackage();
+        return pkg;
     }
 
     private void OnDestroy()
