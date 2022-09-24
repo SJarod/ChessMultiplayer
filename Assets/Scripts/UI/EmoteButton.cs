@@ -21,13 +21,10 @@ public class EmoteButton : MonoBehaviour
     }
     public static void StartEmote()
     {
-        CreateEmote(1);
-
         EmoteInfo info = new EmoteInfo();
         info.id = 1;
         Client client = FindObjectOfType<Client>();
         client.socket.SendPackageOfType(PackageType.EMOTEINFO, SerializedMgr.ObjectToByteArray(info));
-
     }
 
     public static void CreateEmote(int id)

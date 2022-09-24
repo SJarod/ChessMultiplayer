@@ -58,6 +58,10 @@ public class Client : MonoBehaviour
                 ChessGameMgr chessGameMgr = FindObjectOfType<ChessGameMgr>();
                 chessGameMgr.PlayTurn((ChessGameMgr.Move)SerializedMgr.ByteArrayToObject(pkg.data), false);
             }
+            else if (pkg.type == PackageType.EMOTEINFO)
+            {
+                EmoteButton.CreateEmote(((EmoteInfo)SerializedMgr.ByteArrayToObject(pkg.data)).id);
+            }
         }
     }
 
