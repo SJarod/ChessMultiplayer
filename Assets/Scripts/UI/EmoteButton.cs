@@ -30,7 +30,7 @@ public class EmoteButton : MonoBehaviour
 
     public static void CreateEmote(int id)
     {
-        if(id == 1)
+        if (id == 1)
         {
             GameObject Go = Instantiate<GameObject>(p_prefab);
             Go.transform.position = p_prefabPos.position;

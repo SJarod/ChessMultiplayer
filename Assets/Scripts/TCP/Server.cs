@@ -63,8 +63,7 @@ public class Server : MonoBehaviour
     public Package ReadPackageFromSocket(TCPSocket skt)
     {
         skt.ReceivePackage();
-        Package pkg = skt.ReadFirstPackage();
-        return pkg;
+        return skt.ReadFirstPackage();
     }
 
     private void OnDestroy()
