@@ -115,7 +115,7 @@ public partial class ChessGameMgr
                     LeftFrontPos = new BoardPos(FrontPos).GetLeft();
                     RightFrontPos = new BoardPos(FrontPos).GetRight();
                 }
-                if ( new BoardPos(pos).Y == 1 && Squares[pos + BOARD_SIZE].Piece == EPieceType.None)
+                if (new BoardPos(pos).Y == 1 && Squares[pos + BOARD_SIZE].Piece == EPieceType.None)
                 {
                     AddMoveIfValidSquare(team, pos, new BoardPos(FrontPos).GetTop(), moves, (int)ETeamFlag.None);
                 }
@@ -405,8 +405,8 @@ public partial class ChessGameMgr
                 }
             }
 
-             // White
-            for (int i = BOARD_SIZE; i < BOARD_SIZE*2; ++i)
+            // White
+            for (int i = BOARD_SIZE; i < BOARD_SIZE * 2; ++i)
             {
                 SetPieceAtSquare(i, EChessTeam.White, EPieceType.Pawn);
             }
@@ -420,7 +420,7 @@ public partial class ChessGameMgr
             SetPieceAtSquare(7, EChessTeam.White, EPieceType.Rook);
 
             // Black
-            for (int i = BOARD_SIZE * (BOARD_SIZE - 2) ; i < BOARD_SIZE * (BOARD_SIZE - 1); ++i)
+            for (int i = BOARD_SIZE * (BOARD_SIZE - 2); i < BOARD_SIZE * (BOARD_SIZE - 1); ++i)
             {
                 SetPieceAtSquare(i, EChessTeam.Black, EPieceType.Pawn);
             }

@@ -43,14 +43,14 @@ public class ChessAI : MonoBehaviour
     #endregion
 
     #region monobehaviour
-    void Start ()
+    void Start()
     {
-	
-	}
-	void Update ()
+
+    }
+    void Update()
     {
-	
-	}
+
+    }
 
     #endregion
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Networking;
-using MyObjSerial;
+using Serialization;
 using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -19,12 +19,13 @@ public class EmoteButton : MonoBehaviour
         p_prefab = prefab;
         p_prefabPos = prefabPos;
     }
+
     public static void StartEmote()
     {
         EmoteInfo info = new EmoteInfo();
         info.id = 1;
         Client client = FindObjectOfType<Client>();
-        client.socket.SendPackageOfType(PackageType.EMOTEINFO, SerializedMgr.ObjectToByteArray(info));
+        client.socket.SendPackageOfType(PackageType.EMOTEINFO, Serializer.ObjectToByteArray(info));
     }
 
     public static void CreateEmote(int id)

@@ -1,4 +1,3 @@
-using MyObjSerial;
 using System;
 using System.Collections.Generic;
 using System.Net;

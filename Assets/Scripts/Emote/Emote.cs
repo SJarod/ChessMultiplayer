@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Emote : MonoBehaviour
 {
-    private float time = 2f;
+    public float time = 2f;
 
     private void Update()
     {

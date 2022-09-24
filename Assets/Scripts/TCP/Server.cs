@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Net.Sockets;
@@ -6,8 +5,6 @@ using System.Net;
 using System;
 using System.Text;
 using Networking;
-using MyObjSerial;
-using System.Net.WebSockets;
 
 public class Server : MonoBehaviour
 {
@@ -43,8 +40,9 @@ public class Server : MonoBehaviour
                     clientSkt.SendPackageOfType(PackageType.BOOL, boolByte);
                 }
                 waiting = false;
-        NbPlayers = clientSkts.Count;
             }
+
+            NbPlayers = clientSkts.Count;
         }
         else
         {

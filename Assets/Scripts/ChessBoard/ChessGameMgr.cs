@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using MyObjSerial;
+using Serialization;
 
 using System;
 using System.IO;
@@ -43,7 +43,7 @@ public partial class ChessGameMgr : MonoBehaviour
     private int pieceLayerMask;
     private int boardLayerMask;
 
-    private Client client;
+    private Client selfClient;
 
     #region enums
     public enum EPieceType : uint
@@ -167,13 +167,13 @@ public partial class ChessGameMgr : MonoBehaviour
         }
     }
 
-    public void PlayTurn(Move move, bool myMove)
+    public void PlayTurn(Move move, bool selfMove)
     {
         bool canPlay = true;
-        if (myMove)
+        if (selfMove)
         {
             bool isWhite = teamTurn == EChessTeam.White;
-            canPlay = isWhite ? client.player1 : !client.player1;
+            canPlay = isWhite ? selfClient.player1 : !selfClient.player1;
         }
 
         if (boardState.IsValidMove(teamTurn, move) && canPlay)
@@ -202,7 +202,7 @@ public partial class ChessGameMgr : MonoBehaviour
                 finishGame = true;
             }
 
-            client.socket.SendPackageOfType(PackageType.MOVE, SerializedMgr.ObjectToByteArray(move));
+            selfClient.socket.SendPackageOfType(PackageType.MOVE, Serializer.ObjectToByteArray(move));
 
             if (!finishGame)
                 teamTurn = otherTeam;
@@ -296,7 +296,7 @@ public partial class ChessGameMgr : MonoBehaviour
         if (OnScoreUpdated != null)
             OnScoreUpdated(scores[0], scores[1]);
 
-        client = FindObjectOfType<Client>();
+        selfClient = FindObjectOfType<Client>();
     }
 
     void Update()

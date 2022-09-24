@@ -1,16 +1,11 @@
 using System;
 using System.IO;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-
-namespace MyObjSerial
+namespace Serialization
 {
     [Serializable()]
-    public class SerializedMgr
+    public class Serializer
     {
         public static byte[] ObjectToByteArray(object obj)
         {

@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public class MenuButton : MonoBehaviour
 {
     private string IP = "127.0.0.1";
+
     public void CreateServerFor(string gameScene)
     {
         GameObject goS = new GameObject("Server");

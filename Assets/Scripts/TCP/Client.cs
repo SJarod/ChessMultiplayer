@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using System.Text;
 using System.Threading.Tasks;
 using Networking;
-using MyObjSerial;
+using Serialization;
 using UnityEditor;
 
 public class Client : MonoBehaviour
@@ -56,11 +56,11 @@ public class Client : MonoBehaviour
             else if (pkg.type == PackageType.MOVE)
             {
                 ChessGameMgr chessGameMgr = FindObjectOfType<ChessGameMgr>();
-                chessGameMgr.PlayTurn((ChessGameMgr.Move)SerializedMgr.ByteArrayToObject(pkg.data), false);
+                chessGameMgr.PlayTurn((ChessGameMgr.Move)Serializer.ByteArrayToObject(pkg.data), false);
             }
             else if (pkg.type == PackageType.EMOTEINFO)
             {
-                EmoteButton.CreateEmote(((EmoteInfo)SerializedMgr.ByteArrayToObject(pkg.data)).id);
+                EmoteButton.CreateEmote(((EmoteInfo)Serializer.ByteArrayToObject(pkg.data)).id);
             }
         }
     }

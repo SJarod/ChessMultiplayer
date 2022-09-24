@@ -13,11 +13,11 @@ public class CameraLookAt : MonoBehaviour
     [SerializeField]
     private float height = 32f;
 
-	void Update ()
+    void Update()
     {
         Vector3 position = transform.position;
         position.y = height;
         transform.position = position;
         transform.LookAt(lookAt.position + Vector3.up * lookAtZ);
-	}
+    }
 }
