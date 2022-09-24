@@ -1,15 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.Net.Sockets;
 using System.Net;
 using System;
 using UnityEngine.SceneManagement;
 using System.Text;
-using System.Threading.Tasks;
 using Networking;
 using Serialization;
-using UnityEditor;
 
 public class Client : MonoBehaviour
 {
@@ -28,39 +24,47 @@ public class Client : MonoBehaviour
         socket.ReceivePackage();
 
         Package pkg = socket.ReadFirstPackage();
-        if (pkg != null && !inGame)
+        if (pkg == null)
+            return;
+
+        if (!inGame)
         {
             string sceneName = Encoding.ASCII.GetString(pkg.data);
             SceneManager.LoadScene(sceneName);
             inGame = true;
         }
-        else if (pkg != null && inGame)
+        else
         {
-            if (!doOnce)
+            switch (pkg.type)
             {
-                player1 = BitConverter.ToBoolean(pkg.data);
-            }
+                case PackageType.BOOL:
+                    if (doOnce)
+                        return;
 
-            if (!player1 && !doOnce)
-            {
-                Vector3 pos = Camera.main.transform.position;
-                Camera.main.transform.position = new Vector3(pos.x, pos.y, -pos.z);
-                Vector3 rot = Camera.main.transform.rotation.eulerAngles;
-                Camera.main.transform.Rotate(new Vector3(2f * (90f - rot.x), 0f, 0f));
-                doOnce = true;
-            }
-            else if (!doOnce)
-            {
-                doOnce = true;
-            }
-            else if (pkg.type == PackageType.MOVE)
-            {
-                ChessGameMgr chessGameMgr = FindObjectOfType<ChessGameMgr>();
-                chessGameMgr.PlayTurn((ChessGameMgr.Move)Serializer.ByteArrayToObject(pkg.data), false);
-            }
-            else if (pkg.type == PackageType.EMOTEINFO)
-            {
-                EmoteButton.CreateEmote(((EmoteInfo)Serializer.ByteArrayToObject(pkg.data)).id);
+                    player1 = BitConverter.ToBoolean(pkg.data);
+                    if (!player1)
+                    {
+                        Vector3 pos = Camera.main.transform.position;
+                        Camera.main.transform.position = new Vector3(pos.x, pos.y, -pos.z);
+                        Vector3 rot = Camera.main.transform.rotation.eulerAngles;
+                        Camera.main.transform.Rotate(new Vector3(2f * (90f - rot.x), 0f, 0f));
+                    }
+                    doOnce = true;
+
+                    break;
+
+                case PackageType.MOVE:
+                    ChessGameMgr chessGameMgr = FindObjectOfType<ChessGameMgr>();
+                    chessGameMgr.PlayTurn((ChessGameMgr.Move)Serializer.ByteArrayToObject(pkg.data), false);
+
+                    break;
+
+                case PackageType.EMOTEINFO:
+                    EmoteButton.CreateEmote(((EmoteInfo)Serializer.ByteArrayToObject(pkg.data)).id);
+
+                    break;
+                default:
+                    break;
             }
         }
     }

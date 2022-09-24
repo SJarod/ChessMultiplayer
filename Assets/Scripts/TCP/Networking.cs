@@ -97,11 +97,11 @@ namespace Networking
                 if (rawPkgBuffer[i] == 1) // [START OF HEADING]
                 {
                     byte[] sizeB = new byte[sizeof(int)];
-                    Array.Copy(rawPkgBuffer, 1, sizeB, 0, sizeof(int));
+                    Array.Copy(rawPkgBuffer, i + 1, sizeB, 0, sizeof(int));
                     int size = BitConverter.ToInt32(sizeB);
 
                     byte[] typeB = new byte[sizeof(PackageType)];
-                    Array.Copy(rawPkgBuffer, 1 + sizeof(int), typeB, 0, sizeof(PackageType));
+                    Array.Copy(rawPkgBuffer, i + 1 + sizeof(int), typeB, 0, sizeof(PackageType));
                     PackageType type = (PackageType)BitConverter.ToInt32(typeB);
 
                     byte[] rawPkg = new byte[size];
@@ -109,7 +109,27 @@ namespace Networking
                     Package pkg = new Package(type, rawPkg);
                     receivedPkg.Add(pkg);
 
-                    Debug.Log("Package received from " + skt.LocalEndPoint + " : " + Encoding.ASCII.GetString(pkg.data));
+                    string dataStr;
+                    switch (pkg.type)
+                    {
+                        case PackageType.BOOL:
+                            dataStr = BitConverter.ToBoolean(pkg.data) ? "true" : "false";
+                            break;
+                        case PackageType.STRING:
+                            dataStr = Encoding.ASCII.GetString(pkg.data);
+                            break;
+                        case PackageType.MOVE:
+                            dataStr = "Move";
+                            break;
+                        case PackageType.EMOTEINFO:
+                            dataStr = "EmoteInfo";
+                            break;
+                        default:
+                            dataStr = "none";
+                            break;
+                    }
+
+                    Debug.Log("Package received from " + skt.LocalEndPoint + " : " + dataStr);
 
                     i += PackageHeader.size + rawPkg.Length - 1;
                 }
