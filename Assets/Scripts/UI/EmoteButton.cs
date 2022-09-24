@@ -25,9 +25,8 @@ public class EmoteButton : MonoBehaviour
 
         EmoteInfo info = new EmoteInfo();
         info.id = 1;
-        Package pck = new Package(SerializedMgr.ObjectToByteArray(info));
         Client client = FindObjectOfType<Client>();
-        client.socket.SendPackage(pck.data);
+        client.socket.SendPackageOfType(PackageType.EMOTEINFO, SerializedMgr.ObjectToByteArray(info));
 
     }
 

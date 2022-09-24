@@ -1,3 +1,4 @@
+using MyObjSerial;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -12,12 +13,37 @@ namespace Networking
         public const int MAX_PACKAGE_SIZE = 1024;
     }
 
+    public class PackageHeader
+    {
+        public byte[] header;
+
+        public static int size
+        {
+            get { return 1 + sizeof(int) + sizeof(PackageType); }
+        }
+
+        public PackageHeader(int dataSize, PackageType type)
+        {
+            header = new byte[1 + sizeof(int) + sizeof(PackageType)];
+
+            header[0] = 1; // [START OF HEADING]
+
+            byte[] dataSizeBytes = BitConverter.GetBytes(dataSize);
+            Array.Copy(dataSizeBytes, 0, header, 1, dataSizeBytes.Length);
+
+            byte[] typeBytes = BitConverter.GetBytes((int)type);
+            Array.Copy(typeBytes, 0, header, 1 + sizeof(int), typeBytes.Length);
+        }
+    }
+
     public class Package
     {
+        public PackageType type;
         public byte[] data;
 
-        public Package(byte[] buffer)
+        public Package(PackageType type, byte[] buffer)
         {
+            this.type = type;
             data = new byte[buffer.Length];
             Array.Copy(buffer, data, buffer.Length);
         }
@@ -35,16 +61,15 @@ namespace Networking
             this.skt = skt;
         }
 
-        public void SendPackage(byte[] data)
+        public void SendPackageOfType(PackageType type, byte[] data)
         {
             try
             {
-                byte[] header = BitConverter.GetBytes(data.Length);
+                PackageHeader h = new PackageHeader(data.Length, type);
+                byte[] buff = new byte[h.header.Length + data.Length];
 
-                byte[] buff = new byte[1 + header.Length + data.Length];
-                buff[0] = 1; // [START OF HEADING]
-                Array.Copy(header, 0, buff, 1, header.Length);
-                Array.Copy(data, 0, buff, header.Length + 1, data.Length);
+                Array.Copy(h.header, 0, buff, 0, h.header.Length);
+                Array.Copy(data, 0, buff, h.header.Length, data.Length);
 
                 skt.Send(buff);
             }
@@ -72,20 +97,22 @@ namespace Networking
             {
                 if (rawPkgBuffer[i] == 1) // [START OF HEADING]
                 {
-                    byte[] header = { rawPkgBuffer[i + 1],
-                        rawPkgBuffer[i + 2],
-                        rawPkgBuffer[i + 3],
-                        rawPkgBuffer[i + 4] };
-                    int size = BitConverter.ToInt32(header);
+                    byte[] sizeB = new byte[sizeof(int)];
+                    Array.Copy(rawPkgBuffer, 1, sizeB, 0, sizeof(int));
+                    int size = BitConverter.ToInt32(sizeB);
+
+                    byte[] typeB = new byte[sizeof(PackageType)];
+                    Array.Copy(rawPkgBuffer, 1 + sizeof(int), typeB, 0, sizeof(PackageType));
+                    PackageType type = (PackageType)BitConverter.ToInt32(typeB);
 
                     byte[] rawPkg = new byte[size];
-                    Array.Copy(rawPkgBuffer, i + 5, rawPkg, 0, size);
-                    Package pkg = new Package(rawPkg);
+                    Array.Copy(rawPkgBuffer, i + PackageHeader.size, rawPkg, 0, size);
+                    Package pkg = new Package(type, rawPkg);
                     receivedPkg.Add(pkg);
 
                     Debug.Log("Package received from " + skt.LocalEndPoint + " : " + Encoding.ASCII.GetString(pkg.data));
 
-                    i += header.Length + size;
+                    i += PackageHeader.size + rawPkg.Length - 1;
                 }
                 else
                 {

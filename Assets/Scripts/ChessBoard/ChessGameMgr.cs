@@ -202,8 +202,7 @@ public partial class ChessGameMgr : MonoBehaviour
                 finishGame = true;
             }
 
-            Package pck = new Package(SerializedMgr.ObjectToByteArray(move));
-            client.socket.SendPackage(pck.data);
+            client.socket.SendPackageOfType(PackageType.MOVE, SerializedMgr.ObjectToByteArray(move));
 
             if (!finishGame)
                 teamTurn = otherTeam;

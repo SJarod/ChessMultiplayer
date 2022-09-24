@@ -38,7 +38,7 @@ public class Client : MonoBehaviour
         {
             if (!doOnce)
             {
-                player1 = !BitConverter.ToBoolean(pkg.data);
+                player1 = BitConverter.ToBoolean(pkg.data);
             }
 
             if (!player1 && !doOnce)
@@ -53,7 +53,7 @@ public class Client : MonoBehaviour
             {
                 doOnce = true;
             }
-            else
+            else if (pkg.type == PackageType.MOVE)
             {
                 ChessGameMgr chessGameMgr = FindObjectOfType<ChessGameMgr>();
                 chessGameMgr.PlayTurn((ChessGameMgr.Move)SerializedMgr.ByteArrayToObject(pkg.data), false);

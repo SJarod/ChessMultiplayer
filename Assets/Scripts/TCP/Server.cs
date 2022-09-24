@@ -37,11 +37,10 @@ public class Server : MonoBehaviour
                 int i = 0;
                 foreach (TCPSocket clientSkt in clientSkts)
                 {
-                    clientSkt.SendPackage(sceneName);
-                    bool isFirst = i++ == 1;
+                    clientSkt.SendPackageOfType(PackageType.STRING, sceneName);
                     byte[] boolByte = new byte[1];
-                    boolByte[0] = Convert.ToByte(isFirst);
-                    clientSkt.SendPackage(boolByte);
+                    boolByte[0] = Convert.ToByte(i++ == 0);
+                    clientSkt.SendPackageOfType(PackageType.BOOL, boolByte);
                 }
                 waiting = false;
         NbPlayers = clientSkts.Count;
@@ -54,11 +53,11 @@ public class Server : MonoBehaviour
 
             if (pkgP1 != null)
             {
-                clientSkts[1].SendPackage(pkgP1.data);
+                clientSkts[1].SendPackageOfType(pkgP1.type, pkgP1.data);
             }
             else if (pkgP2 != null)
             {
-                clientSkts[0].SendPackage(pkgP2.data);
+                clientSkts[0].SendPackageOfType(pkgP2.type, pkgP2.data);
             }
         }
     }
