@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using UnityEngine;
+using System.Net.NetworkInformation;
 
 namespace Networking
 {
@@ -51,6 +52,8 @@ namespace Networking
     public class TCPSocket
     {
         public Socket skt;
+        public IPEndPoint localEP;
+
         public List<Package> receivedPkg = new List<Package>();
 
         private byte[] rawPkgBuffer = new byte[Constant.MAX_PACKAGE_SIZE];
@@ -186,6 +189,26 @@ namespace Networking
                     skt.Close();
                 }
             }
+        }
+
+        public bool isConnected()
+        {
+            IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
+
+            TcpConnectionInformation[] tcpConnections = ipProperties.GetActiveTcpConnections();
+
+            foreach (TcpConnectionInformation c in tcpConnections)
+            {
+                TcpState stateOfConnection = c.State;
+
+                if (c.LocalEndPoint.Equals(skt.LocalEndPoint) && c.RemoteEndPoint.Equals(skt.RemoteEndPoint))
+                {
+
+                    if (stateOfConnection == TcpState.Established)
+                        return true;
+                }
+            }
+            return false;
         }
     }
 }

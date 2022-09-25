@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Net;
 using System;
 using System.Text;
+using UnityEngine.SceneManagement;
 using Networking;
 
 public class Server : MonoBehaviour
@@ -24,6 +25,24 @@ public class Server : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        foreach (TCPSocket s in clientSkts)
+        {
+            if (!s.isConnected())
+            {
+                Transform[] transforms = FindObjectsOfType<Transform>();
+                foreach (Transform t in transforms)
+                {
+                    Camera c;
+                    if (t.gameObject.TryGetComponent<Camera>(out c))
+                        continue;
+
+                    Destroy(t.gameObject);
+                }
+
+                SceneManager.LoadScene("Menu");
+            }
+        }
+
         if (waiting)
         {
             WaitForConnection();

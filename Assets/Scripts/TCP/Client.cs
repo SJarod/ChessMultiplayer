@@ -10,7 +10,6 @@ using Serialization;
 public class Client : MonoBehaviour
 {
     public TCPSocket socket;
-    private IPEndPoint remoteEP;
 
     public int port = 30000;
 
@@ -22,6 +21,13 @@ public class Client : MonoBehaviour
     private void Update()
     {
         socket.ReceivePackage();
+
+        if (!IsServerConnected() && inGame)
+        {
+            inGame = false;
+            SceneManager.LoadScene("Menu");
+        }
+            Debug.Log("disconnect");
 
         Package pkg = socket.ReadFirstPackage();
         if (pkg == null)
@@ -75,9 +81,9 @@ public class Client : MonoBehaviour
         IPAddress ipAddress = host.AddressList[0].IsIPv6LinkLocal ? host.AddressList[1] : host.AddressList[0];
         Debug.Log("Creating client to connect to " + ipAddress.ToString());
         socket = new TCPSocket(new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp));
-        remoteEP = new IPEndPoint(ipAddress, port);
+        socket.localEP = new IPEndPoint(ipAddress, port);
 
-        if (!socket.Connect(remoteEP))
+        if (!socket.Connect(socket.localEP))
             Destroy(gameObject);
 
         socket.ReceivePackage();
@@ -86,5 +92,17 @@ public class Client : MonoBehaviour
     private void OnDestroy()
     {
         socket.Disconnect();
+    }
+
+    public bool IsServerConnected()
+    {
+        try
+        {
+            return !(socket.skt.Available == 0 && socket.skt.Poll(1, SelectMode.SelectRead));
+        }
+        catch (SocketException)
+        {
+            return false;
+        }
     }
 }
